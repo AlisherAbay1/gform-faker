@@ -10,6 +10,7 @@ from gform_faker.value_objects import Question, Entry, StaticItem
 from gform_faker.enums import ElementEnum
 from gform_faker.entry_functions import get_parsers, create_entry
 from collections.abc import Mapping, Callable
+from fake_useragent import UserAgent
 
 def is_tor_active(proxies: dict[str, str]):
     try:
@@ -19,6 +20,10 @@ def is_tor_active(proxies: dict[str, str]):
     except Exception as e:
         logging.error(f"Unable to connect: [{type(e).__name__}]: {e}")
         return False
+
+def generate_user_agent():
+    user_agent = UserAgent()
+    return user_agent.random
 
 def get_fbzx_token(parsed_data: bs4.BeautifulSoup):
     raw_fbzx = parsed_data.find("input", attrs={"name": "fbzx"})
