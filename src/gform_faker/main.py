@@ -6,8 +6,10 @@ from gform_faker.errors import (
     UnableToParseFbPublicLoadDataError, UndefinedQuestionTypeError)
 import re
 import json
-from gform_faker.value_objects import Question
+from gform_faker.value_objects import Question, Entry
 from gform_faker.enums import QuestionEnum
+from gform_faker.entry_functions import get_parsers, create_entry
+from collections.abc import Mapping, Callable
 
 def is_tor_active(proxies: dict[str, str]):
     try:
@@ -31,7 +33,7 @@ def get_fbzx(parsed_data: bs4.BeautifulSoup):
         logging.error(f"For {raw_fbzx} is impossible to parse fbzx.")
         raise UnableToGetFbzxError()
 
-def get_form_questions(data: requests.Response):
+def get_form_questions(data: requests.Response, parsers: Mapping[QuestionEnum, Callable]):
     answers_match = re.search(r"var FB_PUBLIC_LOAD_DATA_ = (.*?);", data.text)
     if answers_match is None:
         raise UnableToParseFbPublicLoadDataError()
@@ -50,13 +52,15 @@ def get_form_questions(data: requests.Response):
         if question_type in (QuestionEnum.INFO_TEXT, QuestionEnum.SECTION_HEADER, QuestionEnum.IMAGE):
             continue
 
-        question_id = raw_question[4][0][0]
         question_text = raw_question[1]
-        
+        answer_required = bool(raw_question[4][0][2])
+        entries: list[Entry] = create_entry(raw_question, question_type, parsers)
+
         question = Question(
-            id=question_id, 
             text=question_text, 
-            type=QuestionEnum(question_type)
+            type=QuestionEnum(question_type), 
+            answer_required=answer_required, 
+            entries=entries
         )
         form_questions.append(question)
     
@@ -71,6 +75,8 @@ def main():
         'https': 'socks5h://127.0.0.1:9150'
     }
 
+    parsers = get_parsers()
+
     if not is_tor_active(proxies):
         raise TorNotConnectedError()
 
@@ -78,7 +84,7 @@ def main():
     data = requests.get(url=url, proxies=proxies, timeout=10)
     parsed_data = bs4.BeautifulSoup(data.text, "lxml")
     fbzx = get_fbzx(parsed_data)
-    for i in get_form_questions(data):
+    for i in get_form_questions(data, parsers):
         print(i)
 
     
