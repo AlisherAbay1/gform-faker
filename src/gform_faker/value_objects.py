@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from gform_faker.enums import QuestionEnum
+from gform_faker.enums import ElementEnum
 
 @dataclass
 class Entry:
@@ -11,9 +11,15 @@ class Entry:
 @dataclass
 class Question: 
     text: str | None
-    type: QuestionEnum
+    type: ElementEnum
     answer_required: bool
     entries: list[Entry]
+
+
+@dataclass
+class StaticItem:
+    text: str
+    type: ElementEnum
 
 
 @dataclass

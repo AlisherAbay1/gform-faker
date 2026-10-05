@@ -1,19 +1,19 @@
 from gform_faker.value_objects import Entry
-from gform_faker.enums import QuestionEnum
+from gform_faker.enums import ElementEnum
 from collections.abc import Mapping, Callable
 
 def get_parsers():
     return {
-        QuestionEnum.SHORT_TEXT: create_entry_without_options,
-        QuestionEnum.PARAGRAPH: create_entry_without_options,
-        QuestionEnum.DATE: create_entry_without_options,
-        QuestionEnum.TIME: create_entry_without_options,
-        QuestionEnum.RADIO: create_one_entry,
-        QuestionEnum.DROPDOWN: create_one_entry,
-        QuestionEnum.CHECKBOX: create_one_entry,
-        QuestionEnum.SCALE: create_one_entry,
-        QuestionEnum.FIGURED_SCALE: create_one_entry,
-        QuestionEnum.GRID: create_table_entries,
+        ElementEnum.SHORT_TEXT: create_entry_without_options,
+        ElementEnum.PARAGRAPH: create_entry_without_options,
+        ElementEnum.DATE: create_entry_without_options,
+        ElementEnum.TIME: create_entry_without_options,
+        ElementEnum.RADIO: create_one_entry,
+        ElementEnum.DROPDOWN: create_one_entry,
+        ElementEnum.CHECKBOX: create_one_entry,
+        ElementEnum.SCALE: create_one_entry,
+        ElementEnum.FIGURED_SCALE: create_one_entry,
+        ElementEnum.GRID: create_table_entries,
     }
 
 def get_answer_options(raw_entry: list):
@@ -39,5 +39,5 @@ def create_table_entries(raw_question: list):
         ))
     return entries
 
-def create_entry(raw_question: list, question_type: QuestionEnum, parsers: Mapping[QuestionEnum, Callable]):
+def create_entry(raw_question: list, question_type: ElementEnum, parsers: Mapping[ElementEnum, Callable]):
     return parsers[question_type](raw_question)

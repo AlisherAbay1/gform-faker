@@ -2,7 +2,7 @@ from enum import IntEnum
 
 # 6, 8, 11 are not interactive elements. 
 
-class QuestionEnum(IntEnum):
+class ElementEnum(IntEnum):
     SHORT_TEXT = 0
     PARAGRAPH = 1
     RADIO = 2
